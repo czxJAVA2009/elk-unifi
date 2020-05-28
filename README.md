@@ -7,11 +7,6 @@ On your Linux machine where you have [docker](https://www.docker.com/) and [go](
 git clone https://github.com/owentl/elk-usg.git ~/elk-usg
 ```
 
-## Build the docker container
-```bash
-docker build -t elk-geoip ~/elk-usg/geoip/
-```
-
 ## Build beats for MIPS64 and put them under ~/elk-usg/
 ```bash
 
@@ -27,21 +22,21 @@ GOOS=linux GOARCH=mips64 go build -o ~/elk-usg/metricbeat/metricbeat
 popd
 ```
 
-## Start the container
+Now we need to setup the files to report back to your Elastic Stack.  Change the references to 192.168.1.208 to the IP of your Elastic Stack
+
+## Edit the filebeats.yml 
 ```bash
-docker run -p 5601:5601 -p 9200:9200 -e LOGSTASH_START=0 -e TZ="America/New_York" -d --name elk-usg elk-geoip
+vi ~/elk-usg/filebeats/filebeats.yml
 ```
+## Edit the filebeats.yml 
+```bash
+vi ~/elk-usg/metricbeats/metricbeats.yml
+```
+
 
 ## Copy ~/elk-usg to USG
 ```bash
 scp -pr ~/elk-usg/ admin@192.168.1.1:
-```
-
-## Register metricbeat template and dashboard (change ELK_HOST to your hostname)
-```bash
-export ELK_HOST=snow.skynet
-docker run --link elk-usg:$ELK_HOST docker.elastic.co/beats/metricbeat:6.2.2 setup --template -E output.elasticsearch.hosts=["$ELK_HOST:9200"]
-docker run --link elk-usg:$ELK_HOST docker.elastic.co/beats/metricbeat:6.2.2 setup --dashboards -E output.elasticsearch.hosts=["$ELK_HOST:9200"] -E setup.kibana.host=$ELK_HOST:5601
 ```
 
 ## SSH to USG
@@ -49,11 +44,26 @@ docker run --link elk-usg:$ELK_HOST docker.elastic.co/beats/metricbeat:6.2.2 set
 ssh 192.168.1.1 -l admin
 ```
 
-## Edit filebeat.yml and metricbeat.yml (change ELK_HOST to your hostname)
+## Register filebeat template and dashboard
 ```bash
-export ELK_HOST=snow.skynet
-sed -i -e "s:snow.skynet:$ELK_HOST:g" /home/admin/elk-usg/filebeat/filebeat.yml
-sed -i -e "s:snow.skynet:$ELK_HOST:g" /home/admin/elk-usg/metricbeat/metricbeat.yml
+cd elk-usg/filebeat
+./filebeat setup
+```
+
+## Test filebeat 
+```bash
+./filebeat
+```
+
+## Register metricbeat template and dashboard
+```bash
+cd elk-usg/filebeats
+./metricbeat setup
+```
+
+## Test metricbeat
+```bash
+./metricbeat -e
 ```
 
 ## Start beats
