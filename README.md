@@ -4,7 +4,7 @@ On your Linux machine where you have [docker](https://www.docker.com/) and [go](
 
 ## Clone the repository
 ```bash
-git clone https://github.com/caglar10ur/elk-usg.git ~/elk-usg
+git clone https://github.com/owentl/elk-usg.git ~/elk-usg
 ```
 
 ## Build the docker container
@@ -17,7 +17,7 @@ docker build -t elk-geoip ~/elk-usg/geoip/
 
 mkdir -p ~/go/src/github.com/elastic/
 
-git clone -b v6.5.1 https://github.com/elastic/beats.git ~/go/src/github.com/elastic/beats
+git clone -b v7.6.2 https://github.com/elastic/beats.git ~/go/src/github.com/elastic/beats
 pushd  ~/go/src/github.com/elastic/beats/filebeat
 GOOS=linux GOARCH=mips64 go build -o ~/elk-usg/filebeat/filebeat
 popd
@@ -29,7 +29,7 @@ popd
 
 ## Start the container
 ```bash
-docker run -p 5601:5601 -p 9200:9200 -e LOGSTASH_START=0 -e TZ="America/Los_Angeles" -d --name elk-usg elk-geoip
+docker run -p 5601:5601 -p 9200:9200 -e LOGSTASH_START=0 -e TZ="America/New_York" -d --name elk-usg elk-geoip
 ```
 
 ## Copy ~/elk-usg to USG
