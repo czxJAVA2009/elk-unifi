@@ -1,4 +1,4 @@
-# ELK USG
+# ELK Ubiquiti USG and CloudKey
 
 On your Linux machine where you have [docker](https://www.docker.com/) and [go](https://golang.org/).
 
@@ -55,9 +55,16 @@ cd elk-usg/filebeat
 ./filebeat
 ```
 
+## When installing on a USG do the following:
+```bash
+cd elk-usg/metricbeats
+./metricbeat modules disable nginx
+./metricbeat modules disable mongodb
+```
+
 ## Register metricbeat template and dashboard
 ```bash
-cd elk-usg/filebeats
+cd elk-usg/metricbeats
 ./metricbeat setup
 ```
 
