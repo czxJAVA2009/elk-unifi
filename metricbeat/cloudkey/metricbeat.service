@@ -1,0 +1,16 @@
+[Unit]
+Description=Metricbeat is a lightweight shipper for metrics.
+Documentation=https://www.elastic.co/products/beats/metricbeat
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+
+Environment="BEAT_LOG_OPTS=-e"
+Environment="BEAT_CONFIG_OPTS=-c /root/elk-usg/metricbeat/metricbeat.yml"
+Environment="BEAT_PATH_OPTS=-path.home /root/elk-usg/metricbeat -path.config /root/elk-usg/metricbeat -path.data /var/lib/metricbeat -path.logs /var/log/metricbeat"
+ExecStart=/root/elk-usg/metricbeat/metricbeat $BEAT_LOG_OPTS $BEAT_CONFIG_OPTS $BEAT_PATH_OPTS
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

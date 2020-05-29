@@ -160,4 +160,3 @@ mv /root/elk-usg/filebeat/cloudkey/filebeat.service /lib/systemd/system/filebeat
 mv /root/elk-usg/metricbeat/cloudkey/metricbeat.service /lib/systemd/system/metricbeat.service
 systemctl daemon-reload
 ```
-
