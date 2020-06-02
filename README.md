@@ -160,3 +160,8 @@ mv /root/elk-usg/filebeat/cloudkey/filebeat.service /lib/systemd/system/filebeat
 mv /root/elk-usg/metricbeat/cloudkey/metricbeat.service /lib/systemd/system/metricbeat.service
 systemctl daemon-reload
 ```
+
+## Pi-Hole
+Since we already have a compiled ARM binary we can now use that on the raspberry pi.  Follow the same steps for the Cloud Key config and get Filebeat running there.
+
+If you are using [Elk-Hole](https://github.com/nin9s/elk-hole) config you will need to also have Logstash configured and you can follow the steps there.
