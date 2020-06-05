@@ -1,4 +1,13 @@
-# ELK Ubiquiti USG and CloudKey
+# ELK Ubiquiti Unifi USG and CloudKey with a side of Pi-hole
+
+This all assumes you already have Elastic Stack up and running.  
+If you don't, I have included my docker-compose.yml that I used to run a single Elasticsearch node, Kibana and Logstash
+
+Credit for this work goes to others, I simple modified/modernized their work! 
+* Beats compiling/config for USG - [caglar10ur](https://github.com/caglar10ur/elk-unifi)
+* Elastic Stack 
+  - [deviantony](https://github.com/deviantony/docker-elk)
+  - [Elastic](https://www.elastic.co/guide/en/elastic-stack-get-started/current/get-started-docker.html)
 
 ## USG
 
@@ -6,21 +15,21 @@ On your Linux machine where you have [docker](https://www.docker.com/) and [go](
 
 ### Clone the repository
 ```bash
-git clone https://github.com/owentl/elk-usg.git ~/elk-usg
+git clone https://github.com/owentl/elk-unifi.git ~/elk-unifi
 ```
 
-### Build beats for MIPS64 and put them under ~/elk-usg/
+### Build beats for MIPS64 and put them under ~/elk-unifi/
 ```bash
 
 mkdir -p ~/go/src/github.com/elastic/
 
 git clone -b v7.6.2 https://github.com/elastic/beats.git ~/go/src/github.com/elastic/beats
 pushd  ~/go/src/github.com/elastic/beats/filebeat
-GOOS=linux GOARCH=mips64 go build -o ~/elk-usg/filebeat/filebeat
+GOOS=linux GOARCH=mips64 go build -o ~/elk-unifi/filebeat/filebeat
 popd
 
 pushd  ~/go/src/github.com/elastic/beats/metricbeat
-GOOS=linux GOARCH=mips64 go build -o ~/elk-usg/metricbeat/metricbeat
+GOOS=linux GOARCH=mips64 go build -o ~/elk-unifi/metricbeat/metricbeat
 popd
 ```
 
@@ -28,17 +37,17 @@ Now we need to setup the files to report back to your Elastic Stack.  Change the
 
 ### Edit the filebeats.yml 
 ```bash
-vi ~/elk-usg/filebeats/filebeats.yml
+vi ~/elk-unifi/filebeats/filebeats.yml
 ```
 ### Edit the filebeats.yml 
 ```bash
-vi ~/elk-usg/metricbeats/metricbeats.yml
+vi ~/elk-unifi/metricbeats/metricbeats.yml
 ```
 
 
-### Copy ~/elk-usg to USG
+### Copy ~/elk-unifi to USG
 ```bash
-scp -pr ~/elk-usg/ admin@192.168.1.1:
+scp -pr ~/elk-unifi/ admin@192.168.1.1:
 ```
 
 ### SSH to USG
@@ -48,52 +57,52 @@ ssh 192.168.1.1 -l admin
 
 ### Register filebeat template and dashboard
 ```bash
-cd elk-usg/filebeat
-./filebeat setup --path.config /home/admin/elk-usg/filebeat/
+cd elk-unifi/filebeat
+./filebeat setup --path.config /home/admin/elk-unifi/filebeat/
 ```
 
 ### Test filebeat 
 ```bash
-./filebeat --path.config /home/admin/elk-usg/filebeat/
+./filebeat --path.config /home/admin/elk-unifi/filebeat/
 ```
 
 ### Register metricbeat template and dashboard
 ```bash
-cd elk-usg/metricbeats
-./metricbeat setup --path.config /home/admin/elk-usg/metricbeat/
+cd elk-unifi/metricbeats
+./metricbeat setup --path.config /home/admin/elk-unifi/metricbeat/
 ```
 
 ### Test metricbeat
 ```bash
-./metricbeat -e --path.config /home/admin/elk-usg/metricbeat/
+./metricbeat -e --path.config /home/admin/elk-unifi/metricbeat/
 ```
 
 ### Start beats
 ```bash
-nohup /home/admin/elk-usg/filebeat/filebeat run -c /home/admin/elk-usg/filebeat/filebeat.yml >/dev/null 2>&1 &
-nohup /home/admin/elk-usg/metricbeat/metricbeat run -c /home/admin/elk-usg/metricbeat/metricbeat.yml >/dev/null 2>&1 &
+nohup /home/admin/elk-unifi/filebeat/filebeat run -c /home/admin/elk-unifi/filebeat/filebeat.yml >/dev/null 2>&1 &
+nohup /home/admin/elk-unifi/metricbeat/metricbeat run -c /home/admin/elk-unifi/metricbeat/metricbeat.yml >/dev/null 2>&1 &
 ```
 
 ## CloudKey
 
-### Build beats for ARMv7 and put them under ~/elk-usg/ (assumes previous git pull, etc were done)
+### Build beats for ARMv7 and put them under ~/elk-unifi/ (assumes previous git pull, etc were done)
 ```bash
 #preserve mips based filebeat
-mv ~/elk-usg/filebeat/filebeat ~/elk-usg/filebeat/filebeat-mips
+mv ~/elk-unifi/filebeat/filebeat ~/elk-unifi/filebeat/filebeat-mips
 pushd  ~/go/src/github.com/elastic/beats/filebeat
-GOOS=linux GOARCH=arm GOARM=7 go build -o ~/elk-usg/filebeat/filebeat
+GOOS=linux GOARCH=arm GOARM=7 go build -o ~/elk-unifi/filebeat/filebeat
 popd
 
 #preserve mips based metricbeat
-mv ~/elk-usg/metricbeat/metricbeat ~/elk-usg/metricbeat/metricbeat-mips
+mv ~/elk-unifi/metricbeat/metricbeat ~/elk-unifi/metricbeat/metricbeat-mips
 pushd  ~/go/src/github.com/elastic/beats/metricbeat
-GOOS=linux GOARCH=arm GOARM=7 go build -o ~/elk-usg/metricbeat/metricbeat
+GOOS=linux GOARCH=arm GOARM=7 go build -o ~/elk-unifi/metricbeat/metricbeat
 popd
 ```
 
-### Copy ~/elk-usg to CloudKey
+### Copy ~/elk-unifi to CloudKey
 ```bash
-scp -pr ~/elk-usg/ root@192.168.1.2:
+scp -pr ~/elk-unifi/ root@192.168.1.2:
 ```
 
 ### SSH to CloudKey
@@ -141,23 +150,23 @@ chmod 700 /var/log/metricbeat
 
 ### Enable nginx and mongodb for both filebeat and metricbeat
 ```bash
-cd elk-usg/filebeat
-./filebeat --path.config /root/elk-usg/filebeat/ modules enable nginx
-./filebeat --path.config /root/elk-usg/filebeat/ modules enable mongodb
-cd elk-usg/metricbeat
-./metricbeat --path.config /root/elk-usg/metricbeat/ modules enable nginx
-./metricbeat --path.config /root/elk-usg/metricbeat/ modules enable mongodb
+cd elk-unifi/filebeat
+./filebeat --path.config /root/elk-unifi/filebeat/ modules enable nginx
+./filebeat --path.config /root/elk-unifi/filebeat/ modules enable mongodb
+cd elk-unifi/metricbeat
+./metricbeat --path.config /root/elk-unifi/metricbeat/ modules enable nginx
+./metricbeat --path.config /root/elk-unifi/metricbeat/ modules enable mongodb
 ```
 
 ### Register filebeat template and dashboard
 ```bash
-cd elk-usg/filebeat
-./filebeat setup --path.config /root/elk-usg/filebeat/
+cd elk-unifi/filebeat
+./filebeat setup --path.config /root/elk-unifi/filebeat/
 ```
 ### Configure systemctl scripts
 ```bash
-mv /root/elk-usg/filebeat/cloudkey/filebeat.service /lib/systemd/system/filebeat.service
-mv /root/elk-usg/metricbeat/cloudkey/metricbeat.service /lib/systemd/system/metricbeat.service
+mv /root/elk-unifi/filebeat/cloudkey/filebeat.service /lib/systemd/system/filebeat.service
+mv /root/elk-unifi/metricbeat/cloudkey/metricbeat.service /lib/systemd/system/metricbeat.service
 systemctl daemon-reload
 ```
 
