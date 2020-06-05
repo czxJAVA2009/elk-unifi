@@ -1,13 +1,11 @@
 # ELK Ubiquiti Unifi USG and CloudKey with a side of Pi-hole
 
 This all assumes you already have Elastic Stack up and running.  
-If you don't, I have included my docker-compose.yml that I used to run a single Elasticsearch node, Kibana and Logstash
+If you don't, that is beyond the scope of this particular project, but very easy to get going with deviantony's repo!
 
 Credit for this work goes to others, I simple modified/modernized their work! 
 * Beats compiling/config for USG - [caglar10ur](https://github.com/caglar10ur/elk-unifi)
-* Elastic Stack 
-  - [deviantony](https://github.com/deviantony/docker-elk)
-  - [Elastic](https://www.elastic.co/guide/en/elastic-stack-get-started/current/get-started-docker.html)
+* Elastic Stack - [deviantony](https://github.com/deviantony/docker-elk)
 
 ## USG
 
